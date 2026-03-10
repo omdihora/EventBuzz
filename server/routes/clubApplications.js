@@ -1,30 +1,15 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const db = require('../db/database');
 const { authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ── Ensure upload directory exists ────────────────────────────
-const resumeDir = path.join(__dirname, '../uploads/resumes');
-if (!fs.existsSync(resumeDir)) fs.mkdirSync(resumeDir, { recursive: true });
-
-// ── Multer for resume uploads ─────────────────────────────────
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, resumeDir),
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
-        cb(null, uniqueName);
-    },
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+// Note: No disk file uploads on Vercel. Resume link is optional (URL string).
 
 // ── Submit Application (Student) ──────────────────────────────
-router.post('/', authenticate, upload.single('resume'), async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
     try {
-        const { clubId, fullName, enrollmentNumber, department, year, skills, reason } = req.body;
+        const { clubId, fullName, enrollmentNumber, department, year, skills, reason, resumeUrl } = req.body;
         const userId = req.user.id;
 
         if (!clubId || !fullName || !enrollmentNumber || !department || !year) {
@@ -40,7 +25,7 @@ router.post('/', authenticate, upload.single('resume'), async (req, res) => {
             return res.status(400).json({ error: 'You have already applied to this club.' });
         }
 
-        const resumePath = req.file ? `/resumes/${req.file.filename}` : null;
+        const resumePath = resumeUrl || null; // Optional URL link, no disk upload
 
         const result = await db.query(`
       INSERT INTO "ClubApplications" ("userId", "clubId", "fullName", "enrollmentNumber", department, year, skills, reason, "resumePath")

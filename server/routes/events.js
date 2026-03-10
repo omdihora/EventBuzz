@@ -1,20 +1,10 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
 const db = require('../db/database');
 const { authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ── Multer for banner uploads ─────────────────────────────────
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/banners')),
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '-');
-        cb(null, uniqueName);
-    },
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+// Note: No file uploads on Vercel. Admins provide banner image as a URL string.
 
 // ── Get All Events ────────────────────────────────────────────
 router.get('/', async (req, res) => {
@@ -52,15 +42,15 @@ router.get('/:id', async (req, res) => {
 });
 
 // ── Create Event (Admin only) ─────────────────────────────────
-router.post('/', authenticate, authorize('Admin'), upload.single('banner'), async (req, res) => {
+router.post('/', authenticate, authorize('Admin'), async (req, res) => {
     try {
-        const { title, description, organizerClubId, date, startTime, endTime, venue, totalSeats, fee } = req.body;
+        const { title, description, organizerClubId, date, startTime, endTime, venue, totalSeats, fee, bannerUrl } = req.body;
 
         if (!title || !date || !startTime || !endTime || !venue || !totalSeats) {
             return res.status(400).json({ error: 'Missing required fields.' });
         }
 
-        const bannerImagePath = req.file ? `/banners/${req.file.filename}` : null;
+        const bannerImagePath = bannerUrl || null; // Accept URL string, no file upload
         const seats = parseInt(totalSeats);
         const regFee = parseFloat(fee) || 0;
 
@@ -80,7 +70,7 @@ router.post('/', authenticate, authorize('Admin'), upload.single('banner'), asyn
 });
 
 // ── Update Event (Admin only) ─────────────────────────────────
-router.put('/:id', authenticate, authorize('Admin'), upload.single('banner'), async (req, res) => {
+router.put('/:id', authenticate, authorize('Admin'), async (req, res) => {
     try {
         const { title, description, organizerClubId, date, startTime, endTime, venue, totalSeats, fee } = req.body;
         const eventId = req.params.id;
@@ -91,7 +81,7 @@ router.put('/:id', authenticate, authorize('Admin'), upload.single('banner'), as
         }
         const existing = existingResult.rows[0];
 
-        const bannerImagePath = req.file ? `/banners/${req.file.filename}` : existing.bannerImagePath;
+        const bannerImagePath = req.body.bannerUrl !== undefined ? req.body.bannerUrl : existing.bannerImagePath;
         const seats = parseInt(totalSeats) || existing.totalSeats;
         const seatDiff = seats - existing.totalSeats;
         const newAvailable = Math.max(0, existing.availableSeats + seatDiff);

@@ -1,9 +1,6 @@
 const express = require('express');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const QRCode = require('qrcode');
-const path = require('path');
-const fs = require('fs');
 const db = require('../db/database');
 const { authenticate } = require('../middleware/auth');
 require('dotenv').config();
@@ -40,10 +37,6 @@ router.post('/create-order', authenticate, async (req, res) => {
             return res.status(400).json({ error: 'You are already registered for this event.' });
         }
 
-        // Ensure QR code directory exists before order is finalized
-        const qrDir = path.join(__dirname, '../uploads/qrcodes');
-        if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
-
         // Create a 'Pending' registration
         const insertRegResult = await client.query(`
             INSERT INTO "Registrations" ("userId", "eventId", phone, "paymentStatus", "createdAt")
@@ -59,18 +52,13 @@ router.post('/create-order', authenticate, async (req, res) => {
             await client.query("UPDATE \"Registrations\" SET \"paymentStatus\" = 'Success' WHERE id = $1", [registrationId]);
             await client.query('UPDATE "Events" SET "availableSeats" = "availableSeats" - 1 WHERE id = $1', [eventId]);
 
+            // Store QR data as a plain string (no disk write needed)
             const qrData = JSON.stringify({ registrationId, eventId, type: 'Event_Ticket' });
-            const qrFilename = `qr-${registrationId}-${eventId}.png`;
-            const qrPath = path.join(qrDir, qrFilename);
+            await client.query('UPDATE "Registrations" SET "qrCodePath" = $1 WHERE id = $2', [qrData, registrationId]);
 
-            QRCode.toFile(qrPath, qrData, { width: 300, margin: 2 }, (err) => {
-                if (err) console.error('QR generation error:', err);
-            });
-
-            await client.query('UPDATE "Registrations" SET "qrCodePath" = $1 WHERE id = $2', [`/qrcodes/${qrFilename}`, registrationId]);
             await client.query('COMMIT');
 
-            return res.json({ skipPayment: true, registrationId, qrCodePath: `/qrcodes/${qrFilename}` });
+            return res.json({ skipPayment: true, registrationId, qrCodePath: qrData });
         }
 
         // Create Razorpay Order
@@ -137,24 +125,15 @@ router.post('/verify', authenticate, async (req, res) => {
             VALUES ($1, $2, $3, $4, 'Success', $5, 'Razorpay')
         `, [registrationId, userId, eventId, event.fee, razorpay_payment_id]);
 
-        // Generate QR code
-        const qrDir = path.join(__dirname, '../uploads/qrcodes');
+        // Store QR data as a plain string (no disk write on Vercel)
         const qrData = JSON.stringify({ registrationId, eventId, type: 'Event_Ticket' });
-        const qrFilename = `qr-${registrationId}-${eventId}.png`;
-        const qrPath = path.join(qrDir, qrFilename);
-
-        QRCode.toFile(qrPath, qrData, { width: 300, margin: 2 }, (err) => {
-            if (err) console.error('QR generation error:', err);
-        });
-
-        // Update registration with QR path
-        await client.query('UPDATE "Registrations" SET "qrCodePath" = $1 WHERE id = $2', [`/qrcodes/${qrFilename}`, registrationId]);
+        await client.query('UPDATE "Registrations" SET "qrCodePath" = $1 WHERE id = $2', [qrData, registrationId]);
 
         await client.query('COMMIT');
 
         res.json({
             message: 'Payment verified successfully. Ticket generated.',
-            qrCodePath: `/qrcodes/${qrFilename}`
+            qrCodePath: qrData
         });
     } catch (err) {
         await client.query('ROLLBACK');

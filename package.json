@@ -2,14 +2,25 @@
   "name": "eventbuzz-root",
   "version": "1.0.0",
   "description": "EventBuzz Full-Stack Application",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
-    "postinstall": "npm run install-all",
+    "postinstall": "npm install --prefix client && npm install --prefix server",
     "install-all": "npm install --prefix client && npm install --prefix server",
     "dev": "npm run dev:server & npm run dev:client",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "npm run dev --prefix server",
     "build": "npm run build --prefix client"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.20.0",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6"
   },
   "author": "",
   "license": "ISC"

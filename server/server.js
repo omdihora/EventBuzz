@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 const PORT = 5000;
@@ -10,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files (banners, qrcodes, resumes)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Note: File uploads are not supported on Vercel serverless (read-only filesystem)
+// Use cloud storage (Supabase Storage / Cloudinary) for production file hosting
 
 // ── API Routes ────────────────────────────────────────────────
 app.use('/api/auth', require('./routes/auth'));
