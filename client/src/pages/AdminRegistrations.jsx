@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAdminRegistrations, toggleAttendance, exportRegistrationsCSV, getEvents } from '../services/api';
+import { getAdminRegistrations, toggleAttendance, exportRegistrationsCSV, getEvents, UPLOADS_URL } from '../services/api';
 
 export default function AdminRegistrations() {
     const [registrations, setRegistrations] = useState([]);
@@ -149,7 +149,7 @@ export default function AdminRegistrations() {
                                             <td style={{ padding: '12px 14px', fontSize: '0.85rem', color: '#c4b5fd', maxWidth: '160px' }}>{r.eventName}</td>
                                             <td style={{ padding: '12px 14px' }}><span style={statusBadge(r.paymentStatus)}>{r.paymentStatus}</span></td>
                                             <td style={{ padding: '12px 14px' }}>
-                                                {r.qrCodePath ? <a href={`http://localhost:5000/uploads${r.qrCodePath}`} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', fontSize: '0.82rem', textDecoration: 'underline' }}>View QR</a> : <span style={{ color: '#64748b', fontSize: '0.82rem' }}>—</span>}
+                                                {r.qrCodePath ? <a href={`${UPLOADS_URL}${r.qrCodePath}`} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', fontSize: '0.82rem', textDecoration: 'underline' }}>View QR</a> : <span style={{ color: '#64748b', fontSize: '0.82rem' }}>—</span>}
                                             </td>
                                             <td style={{ padding: '12px 14px', fontSize: '0.82rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>{formatDate(r.registrationDate)}</td>
                                             <td style={{ padding: '12px 14px' }}>

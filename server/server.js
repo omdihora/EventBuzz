@@ -40,7 +40,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Start Server ──────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log(`\n🚀 EventBuzz Server running on http://localhost:${PORT}`);
-    console.log(`📦 API available at http://localhost:${PORT}/api\n`);
-});
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`\n🚀 EventBuzz Server running on http://localhost:${PORT}`);
+        console.log(`📦 API available at http://localhost:${PORT}/api\n`);
+    });
+}
+module.exports = app;

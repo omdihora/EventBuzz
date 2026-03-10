@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getClub, submitClubApplication, getClubApplications, updateApplication } from '../services/api';
+import { getClub, submitClubApplication, getClubApplications, updateApplication, UPLOADS_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const clubImages = {
@@ -136,7 +136,7 @@ export default function ClubDetails() {
                                 <p className="text-sm text-text-muted">{a.department} • {a.year} • Enr: {a.enrollmentNumber}</p>
                                 {a.skills && <p className="text-sm font-semibold text-text-secondary mt-1">Skills: {a.skills}</p>}
                                 {a.reason && <p className="text-sm text-text-secondary mt-1">"{a.reason}"</p>}
-                                {a.resumePath && <a href={`http://localhost:5000/uploads${a.resumePath}`} target="_blank" className="text-frost-dark text-xs font-semibold mt-1 inline-block hover:underline">📄 View Resume</a>}
+                                {a.resumePath && <a href={`${UPLOADS_URL}${a.resumePath}`} target="_blank" className="text-frost-dark text-xs font-semibold mt-1 inline-block hover:underline">📄 View Resume</a>}
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`badge ${a.status === 'Selected' ? 'badge-success' : a.status === 'Rejected' ? 'badge-danger' : a.status === 'Interview' ? 'badge-warning' : 'badge-info'}`}>{a.status}</span>

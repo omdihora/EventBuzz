@@ -4,6 +4,7 @@
   "description": "EventBuzz Full-Stack Application",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npm run install-all",
     "install-all": "npm install --prefix client && npm install --prefix server",
     "dev": "npm run dev:server & npm run dev:client",
     "dev:client": "npm run dev --prefix client",

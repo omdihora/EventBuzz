@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getMyRegistrations } from '../services/api';
+import { getMyRegistrations, UPLOADS_URL } from '../services/api';
 import { jsPDF } from 'jspdf';
 
 export default function MyTickets() {
@@ -22,7 +22,7 @@ export default function MyTickets() {
         });
         if (reg.qrCodePath) {
             try {
-                const img = new Image(); img.crossOrigin = 'anonymous'; img.src = `http://localhost:5000/uploads${reg.qrCodePath}`;
+                const img = new Image(); img.crossOrigin = 'anonymous'; img.src = `${UPLOADS_URL}${reg.qrCodePath}`;
                 await new Promise((r, j) => { img.onload = r; img.onerror = j; }); const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
                 c.getContext('2d').drawImage(img, 0, 0); doc.addImage(c.toDataURL('image/png'), 'PNG', (pw - 55) / 2, s + 75, 55, 55);
             } catch (e) { console.error(e); }
@@ -58,7 +58,7 @@ export default function MyTickets() {
                                     </div>
                                     {reg.qrCodePath && (
                                         <div className="flex flex-col items-center gap-2">
-                                            <div className="p-3 bg-white border-2 border-border-light rounded-2xl shadow-sm"><img src={`http://localhost:5000/uploads${reg.qrCodePath}`} alt="QR" className="w-28 h-28 object-contain" /></div>
+                                            <div className="p-3 bg-white border-2 border-border-light rounded-2xl shadow-sm"><img src={`${UPLOADS_URL}${reg.qrCodePath}`} alt="QR" className="w-28 h-28 object-contain" /></div>
                                             <p className="text-[0.7rem] text-text-muted font-medium uppercase tracking-wider">Scan at Venue</p>
                                         </div>
                                     )}
