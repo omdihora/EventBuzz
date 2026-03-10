@@ -17,7 +17,7 @@ EVBZ/
 │   └── package.json     # Frontend dependencies
 │
 ├── server/       # ⚙️ BACKEND (Node.js + Express)
-│   ├── db/              # SQLite Database and seeding scripts
+│   ├── db/              # Database and seeding scripts
 │   ├── middleware/      # Security guards for routes (JWT Auth)
 │   ├── routes/          # API endpoints (Auth, Events, Payments)
 │   ├── uploads/         # Saved QR codes and User Resumes
@@ -39,7 +39,7 @@ The **Frontend** is what the user sees and clicks in their browser.
 ## ⚙️ Backend Technologies (`/server`)
 The **Backend** is the hidden engine that stores data securely and processes business logic.
 *   **Node.js & Express:** The server environment that hosts the API and listens for frontend requests.
-*   **SQLite (`better-sqlite3`):** A lightweight, file-based SQL database that permanently stores Users, Events, Clubs, and Tickets.
+*   **Supabase PostgreSQL:** A scalable, cloud-hosted relational database that permanently stores Users, Events, Clubs, and Tickets.
 *   **JSON Web Tokens (JWT):** Used for secure authentication so the server knows who is logged in.
 *   **Razorpay SDK:** Integrates with India's most popular payment gateway to securely process event ticketing fees.
 *   **Multer:** Handles file formatting when students upload their PDF resumes.
