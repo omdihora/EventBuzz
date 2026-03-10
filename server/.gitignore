@@ -1,0 +1,8 @@
+node_modules/
+.env
+uploads/
+*.log
+eventbuzz.db
+eventbuzz.db-journal
+eventbuzz.db-wal
+eventbuzz.db-shm
