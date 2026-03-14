@@ -34,10 +34,12 @@ export default function AdminCreateEvent() {
 
         setLoading(true);
         try {
-            const fd = new FormData();
-            Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-            if (banner) fd.append('banner', banner);
-            await createEvent(fd);
+            // Send as JSON — backend reads req.body via express.json()
+            await createEvent({
+                ...form,
+                fee: form.fee || 0,
+                bannerUrl: null,
+            });
             navigate('/admin-dashboard', { state: { notification: '🎉 Event published successfully!' } });
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to create event.');

@@ -16,6 +16,7 @@ import AdminCreateEvent from './pages/AdminCreateEvent';
 import AdminRegistrations from './pages/AdminRegistrations';
 import AdminRevenue from './pages/AdminRevenue';
 import AdminVolunteer from './pages/AdminVolunteer';
+import AdminCreateClub from './pages/AdminCreateClub';
 import Clubs from './pages/Clubs';
 import ClubDetails from './pages/ClubDetails';
 import Gallery from './pages/Gallery';
@@ -53,6 +54,7 @@ export default function App() {
                             <Route path="/admin/manage-registrations" element={<ProtectedRoute roles={['Admin']} adminRoute><AdminRegistrations /></ProtectedRoute>} />
                             <Route path="/admin/revenue" element={<ProtectedRoute roles={['Admin']} adminRoute><AdminRevenue /></ProtectedRoute>} />
                             <Route path="/admin/volunteer" element={<ProtectedRoute roles={['Admin']} adminRoute><AdminVolunteer /></ProtectedRoute>} />
+                            <Route path="/admin/clubs" element={<ProtectedRoute roles={['Admin']} adminRoute><AdminCreateClub /></ProtectedRoute>} />
                         </Routes>
                     </main>
                 </BrowserRouter>

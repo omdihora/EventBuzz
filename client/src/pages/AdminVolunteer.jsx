@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getEvents, getVolunteerRoles, createVolunteerRole, getAllVolunteerApplications, updateVolunteerApplicationStatus, markVolunteerCompleted, getAllVolunteerPayments, updateVolunteerPaymentStatus } from '../services/api';
+import { getEvents, getVolunteerRoles, createVolunteerRole, deleteVolunteerRole, getAllVolunteerApplications, updateVolunteerApplicationStatus, markVolunteerCompleted, getAllVolunteerPayments, updateVolunteerPaymentStatus } from '../services/api';
 
 export default function AdminVolunteer() {
     const [events, setEvents] = useState([]);
@@ -11,6 +11,7 @@ export default function AdminVolunteer() {
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState('');
     const [activeTab, setActiveTab] = useState('create'); // create, applications, payments
+    const [deleteRoleConfirm, setDeleteRoleConfirm] = useState(null);
 
     const [roleForm, setRoleForm] = useState({
         eventId: '', roleTitle: '', description: '', paymentAmount: '', positionsAvailable: ''
@@ -49,6 +50,17 @@ export default function AdminVolunteer() {
             loadData();
         } catch (err) {
             showNotif(err.response?.data?.error || 'Failed to create role', true);
+        }
+    };
+
+    const handleDeleteRole = async (id) => {
+        try {
+            await deleteVolunteerRole(id);
+            showNotif('Volunteer role deleted successfully.');
+            setDeleteRoleConfirm(null);
+            loadData();
+        } catch (err) {
+            showNotif(err.response?.data?.error || 'Failed to delete role.', true);
         }
     };
 
@@ -92,6 +104,7 @@ export default function AdminVolunteer() {
     const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(15, 15, 40, 0.8)', border: '1px solid rgba(139, 92, 246, 0.2)', color: '#e2e8f0', fontSize: '0.85rem', outline: 'none', boxSizing: 'border-box' };
     const labelStyle = { display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8', marginBottom: '4px' };
     const btnPrimary = { padding: '10px 20px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem' };
+    const btnDanger = { background: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 };
 
     return (
         <div style={pageStyle}>
@@ -161,7 +174,7 @@ export default function AdminVolunteer() {
                                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                             <thead>
                                                 <tr style={{ borderBottom: '1px solid rgba(139, 92, 246, 0.15)' }}>
-                                                    {['Event', 'Role', 'Payment', 'Positions'].map(h => <th key={h} style={{ padding: '10px', textAlign: 'left', fontSize: '0.75rem', color: '#a78bfa' }}>{h}</th>)}
+                                                    {['Event', 'Role', 'Payment', 'Positions', 'Action'].map(h => <th key={h} style={{ padding: '10px', textAlign: 'left', fontSize: '0.75rem', color: '#a78bfa' }}>{h}</th>)}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -171,9 +184,12 @@ export default function AdminVolunteer() {
                                                         <td style={{ padding: '10px', fontSize: '0.85rem', fontWeight: 600 }}>{r.roleTitle}</td>
                                                         <td style={{ padding: '10px', fontSize: '0.85rem', color: '#34d399' }}>₹{r.paymentAmount}</td>
                                                         <td style={{ padding: '10px', fontSize: '0.85rem' }}>{r.positionsFilled} / {r.positionsAvailable}</td>
+                                                        <td style={{ padding: '10px' }}>
+                                                            <button onClick={() => setDeleteRoleConfirm(r)} style={btnDanger}>🗑️ Delete</button>
+                                                        </td>
                                                     </tr>
                                                 ))}
-                                                {roles.length === 0 && <tr><td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>No roles created yet.</td></tr>}
+                                                {roles.length === 0 && <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>No roles created yet.</td></tr>}
                                             </tbody>
                                         </table>
                                     </div>
@@ -286,6 +302,21 @@ export default function AdminVolunteer() {
                     </>
                 )}
             </div>
+
+            {/* Delete Role Confirmation Modal */}
+            {deleteRoleConfirm && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setDeleteRoleConfirm(null)}>
+                    <div style={{ background: 'rgba(20,20,50,0.95)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: '16px', padding: '28px', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>⚠️</div>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '8px' }}>Delete Role?</h3>
+                        <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '20px' }}>Delete <strong style={{ color: '#e2e8f0' }}>"{deleteRoleConfirm.roleTitle}"</strong>? This will also remove all related applications and payments.</p>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button onClick={() => setDeleteRoleConfirm(null)} style={{ padding: '9px 18px', borderRadius: '9px', border: '1px solid rgba(139,92,246,0.3)', background: 'transparent', color: '#a78bfa', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                            <button onClick={() => handleDeleteRole(deleteRoleConfirm.id)} style={{ padding: '9px 18px', borderRadius: '9px', border: 'none', background: 'rgba(239,68,68,0.8)', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

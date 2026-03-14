@@ -36,6 +36,8 @@ export const getEventRegistrations = (eventId) => api.get(`/registrations/event/
 // ── Clubs ─────────────────────────────────────────────────────
 export const getClubs = () => api.get('/clubs');
 export const getClub = (id) => api.get(`/clubs/${id}`);
+export const createClub = (data) => api.post('/clubs', data);
+export const deleteClub = (id) => api.delete(`/clubs/${id}`);
 export const submitClubApplication = (data) => api.post('/club-applications', data, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const getClubApplications = (clubId) => api.get(`/club-applications/club/${clubId}`);
 export const getMyApplications = () => api.get('/club-applications/my');
@@ -51,6 +53,7 @@ export const getAdminRevenue = () => api.get('/admin/revenue');
 // ── Volunteer ─────────────────────────────────────────────────
 export const getVolunteerRoles = (eventId) => api.get('/volunteer/roles', { params: { eventId } });
 export const createVolunteerRole = (data) => api.post('/volunteer/roles', data);
+export const deleteVolunteerRole = (id) => api.delete(`/volunteer/roles/${id}`);
 
 export const applyForVolunteerRole = (data) => api.post('/volunteer/apply', data);
 export const getMyVolunteerApplications = () => api.get('/volunteer/applications/me');

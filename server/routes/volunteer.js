@@ -56,6 +56,31 @@ router.post('/roles', authenticate, authorize('Admin'), async (req, res) => {
     }
 });
 
+// Delete a volunteer role (Admin only)
+router.delete('/roles/:id', authenticate, authorize('Admin'), async (req, res) => {
+    const client = await db.connect();
+    try {
+        const roleId = req.params.id;
+        const existing = await client.query('SELECT id FROM "VolunteerRoles" WHERE id = $1', [roleId]);
+        if (existing.rows.length === 0) {
+            client.release();
+            return res.status(404).json({ error: 'Volunteer role not found.' });
+        }
+        await client.query('BEGIN');
+        await client.query('DELETE FROM "VolunteerPayments" WHERE "roleId" = $1', [roleId]);
+        await client.query('DELETE FROM "VolunteerApplications" WHERE "roleId" = $1', [roleId]);
+        await client.query('DELETE FROM "VolunteerRoles" WHERE id = $1', [roleId]);
+        await client.query('COMMIT');
+        res.json({ message: 'Volunteer role deleted successfully.' });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Delete volunteer role error:', err);
+        res.status(500).json({ error: 'Failed to delete volunteer role.' });
+    } finally {
+        client.release();
+    }
+});
+
 // ── VOLUNTEER APPLICATIONS ─────────────────────────────────────
 
 // Apply for a volunteer role (Student)

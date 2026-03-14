@@ -111,6 +111,7 @@ export default function AdminDashboard() {
                     </div>
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         <Link to="/admin/create-event" style={{ ...btnPrimary, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>✨ Create Event</Link>
+                        <Link to="/admin/clubs" style={{ ...btnOutline, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>🏛️ Clubs</Link>
                         <Link to="/admin/manage-registrations" style={{ ...btnOutline, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>📋 Registrations</Link>
                         <Link to="/admin/revenue" style={{ ...btnOutline, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>💰 Revenue</Link>
                         <Link to="/admin/volunteer" style={{ ...btnOutline, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>🤝 Volunteers</Link>
