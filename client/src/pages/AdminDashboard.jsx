@@ -49,10 +49,9 @@ export default function AdminDashboard() {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { updateEvent: updateEv } = await import('../services/api');
-            const fd = new FormData();
-            Object.entries(editForm).forEach(([k, v]) => { if (v !== null && v !== undefined) fd.append(k, v); });
-            await updateEv(editModal, fd);
+            // Send as JSON (not FormData) so Express req.body is populated correctly
+            const { default: api } = await import('../services/api');
+            await api.put(`/events/${editModal}`, editForm);
             setEditModal(null);
             setNotification('✅ Event updated successfully!');
             setTimeout(() => setNotification(''), 3000);

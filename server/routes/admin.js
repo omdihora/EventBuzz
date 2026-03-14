@@ -84,26 +84,9 @@ router.get('/registrations', async (req, res) => {
     }
 });
 
-// ── Toggle Attendance ─────────────────────────────────────────
-router.put('/registrations/:id/attendance', async (req, res) => {
-    try {
-        const regResult = await db.query('SELECT * FROM "Registrations" WHERE id = $1', [req.params.id]);
-        if (regResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Registration not found.' });
-        }
-        const reg = regResult.rows[0];
-
-        const newAttended = reg.attended ? 0 : 1;
-        await db.query('UPDATE "Registrations" SET attended = $1 WHERE id = $2', [newAttended, req.params.id]);
-
-        res.json({ message: 'Attendance updated.', attended: newAttended });
-    } catch (err) {
-        console.error('Toggle attendance error:', err);
-        res.status(500).json({ error: 'Failed to update attendance.' });
-    }
-});
-
-// ── Export Registrations as CSV ───────────────────────────────
+// ── Export Registrations as CSV ─────────────────────────────
+// NOTE: This MUST be defined BEFORE /registrations/:id/attendance
+// so Express doesn't match 'export' as an :id value.
 router.get('/registrations/export', async (req, res) => {
     try {
         const { eventId, paymentStatus } = req.query;
@@ -159,6 +142,25 @@ router.get('/registrations/export', async (req, res) => {
     } catch (err) {
         console.error('Export error:', err);
         res.status(500).json({ error: 'Failed to export registrations.' });
+    }
+});
+
+// ── Toggle Attendance ─────────────────────────────────────────
+router.put('/registrations/:id/attendance', async (req, res) => {
+    try {
+        const regResult = await db.query('SELECT * FROM "Registrations" WHERE id = $1', [req.params.id]);
+        if (regResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Registration not found.' });
+        }
+        const reg = regResult.rows[0];
+
+        const newAttended = reg.attended ? 0 : 1;
+        await db.query('UPDATE "Registrations" SET attended = $1 WHERE id = $2', [newAttended, req.params.id]);
+
+        res.json({ message: 'Attendance updated.', attended: newAttended });
+    } catch (err) {
+        console.error('Toggle attendance error:', err);
+        res.status(500).json({ error: 'Failed to update attendance.' });
     }
 });
 
