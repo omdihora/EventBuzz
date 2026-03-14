@@ -36,13 +36,13 @@ router.get('/:id', async (req, res) => {
 // ── Create Club (Admin only) ───────────────────────────────────
 router.post('/', authenticate, authorize('Admin'), async (req, res) => {
     try {
-        const { name, type, description } = req.body;
+        const { name, type, description, logoUrl } = req.body;
         if (!name || !type) {
             return res.status(400).json({ error: 'Name and type are required.' });
         }
         const result = await db.query(
-            'INSERT INTO "Clubs" (name, type, description) VALUES ($1, $2, $3) RETURNING *',
-            [name, type, description || '']
+            'INSERT INTO "Clubs" (name, type, description, "logoUrl") VALUES ($1, $2, $3, $4) RETURNING *',
+            [name, type, description || '', logoUrl || null]
         );
         res.status(201).json({ message: 'Club created successfully!', club: result.rows[0] });
     } catch (err) {

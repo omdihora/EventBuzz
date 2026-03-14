@@ -10,7 +10,7 @@ export default function AdminCreateClub() {
     const [submitting, setSubmitting] = useState(false);
     const [notification, setNotification] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
-    const [form, setForm] = useState({ name: '', type: '', description: '' });
+    const [form, setForm] = useState({ name: '', type: '', description: '', logoUrl: '' });
     const [error, setError] = useState('');
 
     useEffect(() => { loadClubs(); }, []);
@@ -37,7 +37,7 @@ export default function AdminCreateClub() {
         try {
             await createClub(form);
             showNotif(`Club "${form.name}" created successfully!`);
-            setForm({ name: '', type: '', description: '' });
+            setForm({ name: '', type: '', description: '', logoUrl: '' });
             loadClubs();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to create club.');
@@ -98,6 +98,11 @@ export default function AdminCreateClub() {
                                 </select>
                             </div>
                             <div>
+                                <label style={labelStyle}>Logo URL</label>
+                                <input style={inputStyle} value={form.logoUrl} onChange={e => setForm(f => ({ ...f, logoUrl: e.target.value }))} placeholder="e.g. https://example.com/logo.png" />
+                                {form.logoUrl && <img src={form.logoUrl} alt="Logo Preview" style={{ width: '40px', height: '40px', marginTop: '8px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(139,92,246,0.2)' }} onError={(e) => e.target.style.display = 'none'} />}
+                            </div>
+                            <div>
                                 <label style={labelStyle}>Description</label>
                                 <textarea style={{ ...inputStyle, minHeight: '90px', resize: 'vertical' }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="What does this club do?" />
                             </div>
@@ -125,7 +130,7 @@ export default function AdminCreateClub() {
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
                                         <tr style={{ borderBottom: '1px solid rgba(139, 92, 246, 0.15)' }}>
-                                            {['Name', 'Type', 'Description', 'Action'].map(h => (
+                                            {['Logo', 'Name', 'Type', 'Description', 'Action'].map(h => (
                                                 <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '0.72rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                                             ))}
                                         </tr>
@@ -133,6 +138,13 @@ export default function AdminCreateClub() {
                                     <tbody>
                                         {clubs.map(club => (
                                             <tr key={club.id} style={{ borderBottom: '1px solid rgba(139, 92, 246, 0.08)' }}>
+                                                <td style={{ padding: '12px' }}>
+                                                    {club.logoUrl ? (
+                                                        <img src={club.logoUrl} alt={club.name} style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+                                                    ) : (
+                                                        <div style={{ width: '32px', height: '32px', background: 'rgba(139,92,246,0.1)', border: '1px dashed rgba(139,92,246,0.3)', borderRadius: '6px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏛️</div>
+                                                    )}
+                                                </td>
                                                 <td style={{ padding: '12px', fontWeight: 600, color: '#e2e8f0', fontSize: '0.875rem' }}>{club.name}</td>
                                                 <td style={{ padding: '12px' }}>
                                                     <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, background: `${typeColors[club.type] || '#94a3b8'}22`, color: typeColors[club.type] || '#94a3b8', border: `1px solid ${typeColors[club.type] || '#94a3b8'}44` }}>
@@ -146,7 +158,7 @@ export default function AdminCreateClub() {
                                             </tr>
                                         ))}
                                         {clubs.length === 0 && (
-                                            <tr><td colSpan={4} style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No clubs found. Create your first club! 🏛️</td></tr>
+                                            <tr><td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No clubs found. Create your first club! 🏛️</td></tr>
                                         )}
                                     </tbody>
                                 </table>
